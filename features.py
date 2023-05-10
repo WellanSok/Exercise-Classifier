@@ -69,6 +69,20 @@ def entropyMagnitude(window):
 
     return entropy
 
+def orientation(window):
+    # Assume the data is in the format [gyro_x, gyro_y, gyro_z]
+    dt = 0.01  # sample interval (in seconds)
+    roll = np.arctan2(window[:,1], window[:,2])
+    pitch = np.arctan2(-window[:,0], np.sqrt(window[:,1]**2 + window[:,2]**2))
+    yaw = np.cumsum(window[:,2] * dt)  # integrate the z-axis angular velocity to get yaw
+    return np.column_stack((roll, pitch, yaw))
+
+def jerk(window):
+    dt = 0.01  # sample interval (in seconds)
+    dacc = np.diff(window, axis=0) / dt
+    jerk = np.sqrt(np.sum(dacc**2, axis=1))
+    return jerk
+
 def extract_features(window):
     """
     Here is where you will extract your features from the data over 
