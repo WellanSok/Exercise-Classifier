@@ -34,7 +34,7 @@ app = dash.Dash(__name__, server=server,  external_stylesheets=external_styleshe
 
 # define maximum number of data points in the queue
 # Decrease this number to improve performance
-MAX_DATA_POINTS = 100000000000000
+MAX_DATA_POINTS = 500
 
 # define how often the plot is updated in ms
 # Increase this number to improve performance
@@ -71,7 +71,7 @@ last_update_time = time.time()
 class_names = labels.activity_labels
 
 window_size = 100 # ~1 sec assuming 100 Hz sampling rate
-step_size = 100 # no overlap
+step_size = 100  # no overlap
 index = 0 # to keep track of how many samples we have buffered so far
 reset_vars() # resets orientation variables
 
@@ -223,14 +223,14 @@ def update_graph(_counter):
 	activity = None
 
 	if len(all_sensor_data) > window_size:
-		actArray = []
-		print("This code actually ran")
-		for i in range(0,len(all_sensor_data),window_size):
-			subset = all_sensor_data[i:i+window_size]
-			actArray.append(predict(np.asarray(subset)))
-		activity = f"Seconds doing pushups: {actArray.count('pushup')} \n Seconds doing pullups: {actArray.count('pullup')} \n Seconds doing situps: {actArray.count('situp')} \n Seconds planking: {actArray.count('plank')}"
-		print(actArray)
-		#activity = predict(np.asarray(all_sensor_data[-window_size:]))
+		#actArray = []
+		#print("This code actually ran")
+		#for i in range(0,len(all_sensor_data),window_size):
+		#	subset = all_sensor_data[i:i+window_size]
+		#	actArray.append(predict(np.asarray(subset)))
+		#activity = f"Seconds doing pushups: {actArray.count('pushup')} \n Seconds doing pullups: {actArray.count('pullup')} \n Seconds doing situps: {actArray.count('situp')} \n Seconds planking: {actArray.count('plank')}"
+		#print(actArray)
+		activity = predict(np.asarray(all_sensor_data[-window_size:]))
 
     #######################################################################################################
 
