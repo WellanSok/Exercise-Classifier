@@ -17,8 +17,9 @@ from features import extract_features
 from util import slidingWindow, reorient, reset_vars
 from sklearn.tree import DecisionTreeClassifier
 import pickle
-
+from scipy.signal import butter, freqz, filtfilt, firwin, iirnotch, lfilter, find_peaks
 import labels
+from matplotlib import pyplot as plt
 
 
 # %%---------------------------------------------------------------------------
@@ -39,8 +40,41 @@ sys.stdout.flush()
 #		                    Pre-processing
 #
 # -----------------------------------------------------------------------------
+def butterFilt(data):
+    # Filter requirements.
+    order = 3 
+    fs = 100  # sample rate, Hz
+    cutoff = 1.5  # desired cutoff frequency of the filter, Hz. MODIFY AS APPROPROATE
+    # Create the filter.
 
+    nyq = 0.5 * fs
+    normal_cutoff = cutoff / nyq
+    b, a = butter(order, normal_cutoff, btype='low', analog=False)
+    filtered = filtfilt(b,a,data)
+    return filtered
+#smooth accel_x,y,z
+data[:,2] = butterFilt(data[:,2]) 
+data[:,3] = butterFilt(data[:,3])
+data[:,4] = butterFilt(data[:,4])
+#smooth gyro_x,y,z
+data[:,5] = butterFilt(data[:,5])
+data[:,6] = butterFilt(data[:,6])
+data[:,7] = butterFilt(data[:,7])
 
+accel_time = data[:,1]
+
+c = accel_time[0]
+accel_time = (accel_time - c)
+
+fig, axes = plt.subplots(1, 1,figsize=(15, 5)) #subplts of row and col 1 to make them overlap on the same graph 
+axes.plot(data[:,2],'r-', label="X")
+axes.plot(data[:,3], label="Y")
+axes.plot(data[:,4], label="Z")
+axes.plot(data[:,8], label="Activity: 0 = pushups, 1 = situps, 2 = pullups, 3 = planks")
+axes.legend()
+axes.set_title("X,Y,Z accel plot")
+
+plt.savefig('accel.png')
 
 # %%---------------------------------------------------------------------------
 #
@@ -101,16 +135,17 @@ for each fold.
 accuracy_list = []
 precision_list = []
 recall_list = []
-for train_index, test_index in cv.split(X):
-    #do the stuff this loop iterates over the folds
-    betterTree = DecisionTreeClassifier(criterion="entropy", max_depth=4)
-    betterTree.fit(X[train_index], Y[train_index])
-    y_test = Y[test_index]
-    y_train = betterTree.predict(X[test_index])
-    print(sklearn.metrics.confusion_matrix(y_test, y_train))
-    precision_list.append(sklearn.metrics.precision_score(y_test,y_train,average=None,zero_division=1))
-    accuracy_list.append(sklearn.metrics.accuracy_score(y_test,y_train))
-    recall_list.append(sklearn.metrics.recall_score(y_test,y_train, average=None,zero_division=1))
+for i in range(0,1000):
+    for train_index, test_index in cv.split(X):
+        #do the stuff this loop iterates over the folds
+        betterTree = DecisionTreeClassifier(criterion="entropy", max_depth=4)
+        betterTree.fit(X[train_index], Y[train_index])
+        y_test = Y[test_index]
+        y_train = betterTree.predict(X[test_index])
+        print(sklearn.metrics.confusion_matrix(y_test, y_train))
+        precision_list.append(sklearn.metrics.precision_score(y_test,y_train,average=None,zero_division=1))
+        accuracy_list.append(sklearn.metrics.accuracy_score(y_test,y_train))
+        recall_list.append(sklearn.metrics.recall_score(y_test,y_train, average=None,zero_division=1))
 
 # TODO: calculate and print the average accuracy, precision and recall values over all 10 folds
 
