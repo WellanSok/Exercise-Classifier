@@ -69,13 +69,41 @@ def entropyMagnitude(window):
 
     return entropy
 
-def orientation(window):
+# Calculates the magnitude of the roll, pitch, and yaw based on the gyroscope data
+def orientation(window,axis):
     # Assume the data is in the format [gyro_x, gyro_y, gyro_z]
     dt = 0.01  # sample interval (in seconds)
-    roll = np.arctan2(window[:,1], window[:,2])
-    pitch = np.arctan2(-window[:,0], np.sqrt(window[:,1]**2 + window[:,2]**2))
-    yaw = np.cumsum(window[:,2] * dt)  # integrate the z-axis angular velocity to get yaw
-    return np.column_stack((roll, pitch, yaw))
+    window = abs(window)
+    roll = np.sum(np.arctan2(window[:,1], window[:,2]))
+    pitch = np.sum(np.arctan2(-window[:,0], np.sqrt(window[:,1]**2 + window[:,2]**2)))
+    yaw = np.sum(np.cumsum(window[:,2] * dt))  # integrate the z-axis angular velocity to get yaw
+    if axis=="r":
+        #print(f"roll: {roll}")
+        return roll
+    elif axis=="p":
+        #print(f"pitch: {pitch}")
+        return pitch
+    else:
+        #print(f"yaw: {yaw}")
+        return yaw
+
+# Finds the variance of the orientation
+def orientationVariance(window,axis):
+    dt = 0.01  # sample interval (in seconds)
+    window = abs(window)
+    roll = np.var(np.arctan2(window[:,1], window[:,2]))
+    pitch = np.var(np.arctan2(-window[:,0], np.sqrt(window[:,1]**2 + window[:,2]**2)))
+    yaw = np.var(np.cumsum(window[:,2] * dt))
+    if axis=="r":
+        #print(f"roll: {roll}")
+        return roll
+    elif axis=="p":
+        #print(f"pitch: {pitch}")
+        return pitch
+    else:
+        #print(f"yaw: {yaw}")
+        return yaw
+
 
 def jerk(window):
     dt = 0.01  # sample interval (in seconds)
@@ -157,6 +185,24 @@ def extract_features(window):
 
     x.append(entropyMagnitude(win))
     feature_names.append("entropy_mag")
+
+    x.append(orientation(win[:, [3,4,5]],"r"))
+    feature_names.append("roll")
+
+    x.append(orientation(win[:, [3,4,5]],"p"))
+    feature_names.append("pitch")
+
+    x.append(orientation(win[:, [3,4,5]],"y"))
+    feature_names.append("yaw")
+
+    x.append(orientationVariance(win[:, [3,4,5]],"r"))
+    feature_names.append("roll_var")
+
+    x.append(orientationVariance(win[:, [3,4,5]],"p"))
+    feature_names.append("pitch_var")
+
+    x.append(orientationVariance(win[:, [3,4,5]],"y"))
+    feature_names.append("yaw_var")
 
     feature_vector = list(x)
     return feature_names, feature_vector

@@ -40,14 +40,7 @@ sys.stdout.flush()
 #
 # -----------------------------------------------------------------------------
 
-print("Reorienting accelerometer data...")
-sys.stdout.flush()
-reset_vars()
-reoriented = np.asarray([reorient(data[i,2], data[i,3], data[i,4]) for i in range(len(data))])
-reoriented_data_with_timestamps = np.append(data[:,0:2],reoriented,axis=1)
-data = np.append(reoriented_data_with_timestamps, data[:,-1:], axis=1)
 
-data = np.nan_to_num(data)
 
 # %%---------------------------------------------------------------------------
 #
@@ -55,8 +48,8 @@ data = np.nan_to_num(data)
 #
 # -----------------------------------------------------------------------------
 
-window_size = 20
-step_size = 20
+window_size = 150
+step_size = 150
 
 # sampling rate should be about 100 Hz (sensor logger app); you can take a brief window to confirm this
 n_samples = 1000
@@ -75,9 +68,7 @@ X = []
 Y = []
 feature_names = []
 for i,window_with_timestamp_and_label in slidingWindow(data, window_size, step_size):
-    window = window_with_timestamp_and_label[:,2:-1]
-    # print("window = ")
-    # print(window)
+    window = window_with_timestamp_and_label[:,2:]
     feature_names, x = extract_features(window)
     X.append(x)
     Y.append(window_with_timestamp_and_label[10, -1])
@@ -117,11 +108,21 @@ for train_index, test_index in cv.split(X):
     y_test = Y[test_index]
     y_train = betterTree.predict(X[test_index])
     print(sklearn.metrics.confusion_matrix(y_test, y_train))
-    precision_list.append(sklearn.metrics.precision_score(y_test,y_train,average=None))
+    precision_list.append(sklearn.metrics.precision_score(y_test,y_train,average=None,zero_division=1))
     accuracy_list.append(sklearn.metrics.accuracy_score(y_test,y_train))
-    recall_list.append(sklearn.metrics.recall_score(y_test,y_train, average=None))
+    recall_list.append(sklearn.metrics.recall_score(y_test,y_train, average=None,zero_division=1))
+
 # TODO: calculate and print the average accuracy, precision and recall values over all 10 folds
-print(accuracy_list)
+
+# The following code handles strange behavior regarding zero divisions in score calculations
+i = 0
+for element,element2 in zip(precision_list,recall_list):
+    if len(element)<4:
+        precision_list[i] = np.append(precision_list[i],1)
+    if len(element2)<4:
+        recall_list[i] = np.append(recall_list[i],1)
+    i+=1
+
 print(f"Accuracy:{np.average(accuracy_list)}")
 print(f"Precision:{np.average(precision_list)}")
 print(f"Recall:{np.average(recall_list)}")

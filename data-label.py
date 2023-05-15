@@ -16,8 +16,8 @@ act_labels = labels.activity_labels
 print(act_labels)
 
 # specify the data files and corresponding activity label
-csv_files = ["data/Accelerometer-pushups-12-wellan.csv", "data/Accelerometer-situps-12-wellan.csv"]#,"data/Driving-Accelerometer.csv","data/Standing-Accelerometer.csv"]#"data/Standing-Accelerometer.csv"]
-activity_list = ["pushup", "situp", "pullup"]
+csv_files = ["data/Combined-pushups-12-wellan.csv","data/Combined-situps-12-wellan.csv","data/Combined-pullups-7-wellan.csv","data/Combined-situps-1min-nick.csv","data/Combined-pushups-1min-nick.csv","data/Combined-situps-1min-gibby.csv", "data/Combined-pushups-1min-gibby.csv","data/Combined-plank-1min-nick.csv","data/Combined-pullups-1min-gibby.csv","data/Combined-pullups-1min-gibby1.csv","data/Combined-pullups-45sec-nick.csv"]#,"data/Driving-Accelerometer.csv","data/Standing-Accelerometer.csv"]#"data/Standing-Accelerometer.csv"]
+activity_list = ["pushup", "situp", "pullup", "situp", "pushup", "situp", "pushup","plank","pullup","pullup","pullup"]
 
 # Specify final output file name. 
 output_filename = "data/all_labeled_data.csv"
