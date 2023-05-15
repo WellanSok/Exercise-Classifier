@@ -7,8 +7,8 @@ import labels
 
 
 #Array should be: [Accel,Gyro] 
-filesToCombine = ["data/accelerometer-skullcrushers-1min-gibby.csv", "data/gyroscope-skullcrushers-1min-gibby.csv"]
-outputFilename = "data/Combined-skullcrushers-1min-gibby.csv"
+filesToCombine = ["data/accelerometer-plank-1min-gibby.csv", "data/gyroscope-plank-1min-gibby.csv"]
+outputFilename = "data/Combined-plank-1min-gibby.csv"
 accelData = []
 with open(filesToCombine[0], "r") as f:
         reader = csv.reader(f, delimiter = ",")
